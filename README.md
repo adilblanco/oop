@@ -1,14 +1,19 @@
-# 1. Introduction
+# Python OOP
+
+## 1. Introduction
+
 + OOP est un paradigme de programmation; c’est-à-dire une façon de concevoir un programme informatique.
 + OOP nous permet de définir nos propres types d’objets, avec leurs propriétés et opérations.
 
-# 2. Objet et caractéristiques
+## 2. Objet et caractéristiques
+
 Un objet est constitué de 3 caractéristiques:
-+ Type
+
++ Types
 + attributs
 + methodes
 
-```
+```python
 >>> number = 5                  # On instancie une variable `number` de type `int`
 >>> number.numerator            # `numerator` est un attribut de `number`
 >>> 5
@@ -17,15 +22,16 @@ Un objet est constitué de 3 caractéristiques:
 >>> [5]
 ```
 
-## 2.1. Il a une drôle de tête ce type-là
+### 2.1. Types
 
-```
+```python
 class User:
     pass
 ```
 
-## 2.2. Montre-moi tes attributs
-```
+### 2.2. Attributs
+
+```python
 class User:
     pass
 
@@ -45,9 +51,9 @@ print('Mon mot de passe est {}.'.format(john.password))
 Nous avons instancié un objet nommé john , de type User , auquel nous avons attribué trois
 attributs. Puis nous avons aﬃché les valeurs de ces attributs.
 
+### 2.3. Méthodes
 
-## 2.3. Discours de la méthode
-```
+```python
 def user_check_pwd(user, password):
     return user.password == password
 
@@ -57,15 +63,16 @@ False
 True
 ```
 
-# 3. Classes
-```
+## 3. Classes
+
+```python
 class User:
     pass
 ```
 
-L’instruction pass sert ici à indiquer à Python que le corps de notre classe est vide
+L’instruction `pass` sert ici à indiquer à Python que le corps de notre classe est vide
 
-```
+```python
 >>> User()
 <__main__.User object at 0x7fc28e538198>
 >>> int()
@@ -76,11 +83,12 @@ L’instruction pass sert ici à indiquer à Python que le corps de notre classe
 []
 ```
 
-## 3.2. Argumentons pour construire
+### 3.1. constructeur
+
 Nous avons vu qu’instancier une classe était semblable à un appel de fonction. Dans ce cas,
 comment passer des arguments à une classe
 
-```
+```python
 class User:
 def __init__(self, id, name, password):
     self.id = id
@@ -94,7 +102,7 @@ def check_pwd(self, password):
 Nous retrouvons dans cette méthode le paramètre `self` , qui est donc utilisé pour modifier les
 attributs de l’objet
 
-```
+```python
 >>> john = User(1, 'john', '12345')
 >>> john.check_pwd('toto')
 False
@@ -102,9 +110,9 @@ False
 True
 ```
 
-## 3.3. Comment veux-tu que je t’encapsule ?
+### 3.2. Encapsulation
 
-```
+```python
 import crypt
 
 class User:
@@ -129,7 +137,7 @@ class User:
 On note toutefois qu’il ne s’agit que d’une convention, l’attribut _password étant parfaitement
 visible depuis l’extérieur.
 
-```
+```python
 >>> john._password
 '$6$DwdvE5H8sT71Huf/$9a.H/VIK4fdwIFdLJYL34yml/QC3KZ7'
 ```
@@ -141,7 +149,7 @@ visible depuis l’extérieur.
 Il reste possible de masquer un peu plus l’attribut à l’aide du préfixe __ . Ce préfixe a pour effet
 de renommer l’attribut en y insérant le nom de la classe courante.
 
-```
+```python
 class User:
     def __init__(self, id, name, password):
         self.id = id
@@ -156,7 +164,7 @@ class User:
         return self.__password == self.__crypt_pwd(password)
 ```
 
-```
+```python
 >>> john = User(1, 'john', '12345')
 >>> john.__password
 Traceback (most recent call last):
