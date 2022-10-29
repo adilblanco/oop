@@ -112,67 +112,21 @@ True
 
 ### 3.2. Encapsulation
 
-```python
-import crypt
+Restreindre l'accès aux données stockées dans les attributs et les méthodes
 
-class User:
-    def __init__(self, id, name, password):
-        self.id = id
-        self.name = name
-        self._salt = crypt.mksalt()     # sel utilisé pour le hash du mot de passe
-        self._password = self._crypt_pwd(password)
+**public**:
++ Chaque attribut et méthode que nous avons utilisé jusqu'à présent est public
++ Les attributs et les méthodes peuvent être modifiés et exécutés de partout à l'intérieur ou à l'extérieur de la classe.
 
+**Portected**:
++ Les attributs et les méthodes sont accessibles depuis la classe et les sous-classes
++ Attributs et méthodes précédés d'un trait de soulignement _
 
-    def _crypt_pwd(self, password):
-        return crypt.crypt(password, self._salt)
+**private**:
++ Les attributs et les méthodes sont accessibles depuis la classe ou l'objet uniquement
++ Les attributs ne peuvent pas être modifiés depuis l'extérieur de la classe
++ Attributs et méthodes précédés de deux traits de soulignement __
 
-    def check_pwd(self, password):
-        return self._password == self._crypt_pwd(password)
-
-    >>> john = User(1, 'john', '12345')
-    >>> john.check_pwd('12345')
-    True
-```
-
-On note toutefois qu’il ne s’agit que d’une convention, l’attribut _password étant parfaitement
-visible depuis l’extérieur.
-
-```python
->>> john._password
-'$6$DwdvE5H8sT71Huf/$9a.H/VIK4fdwIFdLJYL34yml/QC3KZ7'
-```
-
-> 1. Le hashage d’un mot de passe correspond à une opération non-réversible qui permet de calculer un
-> condensat (hash) du mot de passe. Ce condensat peut-être utilisé pour vérifier la validité d’un mot de passe,
-> mais ne permet pas de retrouver le mot de passe d’origine.
-
-Il reste possible de masquer un peu plus l’attribut à l’aide du préfixe __ . Ce préfixe a pour effet
-de renommer l’attribut en y insérant le nom de la classe courante.
-
-```python
-class User:
-    def __init__(self, id, name, password):
-        self.id = id
-        self.name = name
-        self.__salt = crypt.mksalt()
-        self.__password = self.__crypt_pwd(password)
-
-    def __crypt_pwd(self, password):
-        return crypt.crypt(password, self.__salt)
-
-    def check_pwd(self, password):
-        return self.__password == self.__crypt_pwd(password)
-```
-
-```python
->>> john = User(1, 'john', '12345')
->>> john.__password
-Traceback (most recent call last):
-File "<stdin>", line 1, in <module>
-AttributeError: 'User' object has no attribute '__password'
->>> john._User__password
-'$6$kjwoqPPHRQAamRHT$591frrNfNNb3.RdLXYiB/bgdCC4Z0p.B'
-```
-
-Ce comportement pourra surtout être utile pour éviter des conflits de noms entre attributs
-internes de plusieurs classes sur un même objet, que nous verrons lors de l’héritage.
+<mark>
+Python n'a aucun mécanisme qui empêche d'accéder à une variable ou appeler une méthode membre. Tout cela est une question de culture et de convention. Toutes les variables et méthodes membres sont publiques par défaut.
+</mark> 
