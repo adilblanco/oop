@@ -1,4 +1,4 @@
-# Python OOP
+# OOP
 
 ## 1. Introduction
 
@@ -343,3 +343,230 @@ class ReversableList(Reversable, list):
 >> print(ReversableTuple((1, 2, 3)).reverse())
 >> (3, 2, 1)
 ```
+
+## 5. Programmation orientéeobjet avancée
+
+### 5.1. Les attributs entrent en classe
+
+```
+>>> class User:
+...     type = 'simple_user'
+
+>>> john = User()
+>>> john.type
+'simple_user'
+
+>>> User.type = 'admin'
+>>> john.type
+'admin'
+
+>>> john.type = 'superadmin'
+>>> john.type
+'superadmin'
+
+>>> User.type
+'admin'
+
+>>> joe = User()
+>>> joe.type
+'admin'
+
+>>> john.type
+'superadmin'
+```
+
+C’est le fonctionnement du `mro` de Python, il cherche d’abord si l’attribut existe dans l’objet, puis si ce n’est pas le cas, le cherche dans les classes parentes. Quand l’attribut est redéfini dans l’objet, il sera trouvé en premier, et n’affectera pas la classe.
+
+### 5.2. La méthode de classe
+
+Les méthodes de classe constituent des opérations relatives à la classe mais à aucune instance. Elles recevront la classe courante en premier paramètre (nommé `cls`, correspondant au `self` des méthodes d’instance), et auront donc accès aux autres attributs et méthodes de classe.
+
+Les méthodes de classe se définissent comme les méthodes habituelles, à la différence près qu’elles sont précédées du décorateur `classmethod`.
+
+```python
+import crypt 
+
+
+class User:
+    users = []
+    def __init__(self, name, password):
+        self.name = name
+        self._salt = crypt.mksalt()
+        self._password = self._crypt_pwd(password) 
+        self.register(self)
+
+    @classmethod
+    def register(cls, user): 
+        cls.users.append(user) 
+        user.id = len(cls.users)
+
+    def _crypt_pwd(self, password):
+        return crypt.crypt(password, self._salt)
+
+    def check_pwd(self, password):
+        return self._password == self._crypt_pwd(password)
+
+    def __repr__(self):
+        return '<User: {}, {}>'.format(self.id, self.name)
+
+
+class Guest(User):
+    def __init__(self, name):
+        super().__init__(name, '') 
+    
+    def check_pwd(self, password):
+        return True
+
+
+class Admin(User): 
+    def manage(self):
+        print('I am an über administrator!')
+```
+```python
+root = Admin("root", "toor")
+user = User("john", "12345")
+guest = Guest("guest")
+
+print(root)
+print(user)
+print(guest)
+
+<User: 1, root>
+<User: 2, john>
+<User: 3, guest>
+```
+
+### 5.3. La méthode static
+
+Contrairement aux méthodes de classe, elles ne recevront pas le paramètre `cls`, et n’auront donc pas accès aux attributs de classe.
+
+Les méthodes statiques sont plutôt dédiées à des comportements annexes en rapport avec la classe, par exemple on pourrait remplacer notre attribut `id` par un `uuid` aléatoire, dont la génération ne dépendrait de rien d’autre dans la classe.
+
+```python
+import uuid
+import crypt 
+
+
+class User:
+    users = []
+    def __init__(self, name, password):
+        self.name = name
+        self._salt = crypt.mksalt()
+        self._password = self._crypt_pwd(password) 
+
+    @staticmethod
+    def _gen_uuid():
+        return str(uuid.uuid4())
+
+    def _crypt_pwd(self, password):
+        return crypt.crypt(password, self._salt)
+
+    def check_pwd(self, password):
+        return self._password == self._crypt_pwd(password)
+
+    def __repr__(self):
+        return '<User: {}, {}>'.format(self.id, self.name)
+```
+```
+>>> john = User('john', '12345')
+>>> john.id
+'69ef1327-3d96-42a9-94e6-622619fbf666'
+```
+
+### 5.4. les getters/setters d'attributs
+
+On trouve aussi une fonction `hasattr` pour tester la présence d’un attribut dans un objet. 
+
+```
+>>> hasattr(john, 'name')
+True
+>>> hasattr(john, 'last_name')
+False
+>>> hasattr(john, 'id')
+True
+```
+
+De la même manière, les fonctions `setattr` et `delattr` servent respectivement à modifier et supprimer un attribut.
+
+```
+>>> setattr(john, 'name', 'peter')      #équivalent à `john.name='peter'` 
+>>> john.name
+'peter'
+>>> delattr(john, 'name')               #équivalent à `del john.name` 
+```
+
+### 5.5. les propriétés dynamiques
+
+Les propriétés sont une manière de `dynamiser` les attributs d’un objet. Ils permettent de générer des attributs à la volée à partir de méthodes de l’objet.
+
+```python
+class ProfilePicture: @property
+    def picture(self):
+        return '{}-{}.png'.format(self.id, self.name)
+
+class UserPicture(ProfilePicture, User): 
+    pass
+```
+
+On définit donc une propriété picture, qui s’utilise comme un attribut. Chaque fois qu’on appelle picture, la méthode correspondante est appelée et le résultat est calculé.
+
+```
+>>> john = UserPicture('john', '12345')
+>>> john.picture
+'1-john.png'
+>>> john.name = 'JOHN'
+>>> john.picture
+'1-JOHN.png'
+```
+
+Il s’agit là d’une propriété en lecture seule, il nous est en effet impossible de modifier la valeur de l’attribut picture.
+
+```
+>>> john.picture = 'toto.png'
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module> AttributeError: can't set attribute
+```
+
+Pour le rendre modifiable, il faut ajouter à notre classe la méthode permettant de gérer la modification, à l’aide du décorateur `@picture.setter` (le décorateur `setter` de notre propriété `picture`, donc).
+
+On utilisera ici un attribut `_picture`, qui pourra contenir l’adresse de l’image si elle a été définie, et `None` le cas échéant.
+
+```python
+class ProfilePicture:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self._picture = None
+
+    @property
+    def picture(self):
+        if self._picture is not None:
+            return self._picture
+        return '{}-{}.png'.format(self.id, self.name)
+    
+    @picture.setter
+    def picture(self, value): 
+        self._picture = value
+    
+    @picture.deleter
+    def picture(self): 
+        self._picture = None
+
+
+class UserPicture(ProfilePicture, User): 
+    pass
+```
+
+```
+>>> john = UserPicture('john', '12345')
+>>> john.picture
+'1-john.png'
+>>> john.picture = 'toto.png'
+>>> john.picture
+'toto.png'
+>>> del john.picture
+>>> john.picture
+'1-john.png'
+```
+
+### 5.6. les classes abstraites
+
