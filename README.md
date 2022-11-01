@@ -389,6 +389,7 @@ import crypt
 
 class User:
     users = []
+
     def __init__(self, name, password):
         self.name = name
         self._salt = crypt.mksalt()
@@ -449,6 +450,7 @@ import crypt
 
 class User:
     users = []
+
     def __init__(self, name, password):
         self.name = name
         self._salt = crypt.mksalt()
@@ -500,7 +502,8 @@ De la même manière, les fonctions `setattr` et `delattr` servent respectivemen
 Les propriétés sont une manière de `dynamiser` les attributs d’un objet. Ils permettent de générer des attributs à la volée à partir de méthodes de l’objet.
 
 ```python
-class ProfilePicture: @property
+class ProfilePicture: 
+    @property
     def picture(self):
         return '{}-{}.png'.format(self.id, self.name)
 
