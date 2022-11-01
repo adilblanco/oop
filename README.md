@@ -344,7 +344,7 @@ class ReversableList(Reversable, list):
 >> (3, 2, 1)
 ```
 
-## 5. Programmation orientéeobjet avancée
+## 5. Programmation orientée objet avancée
 
 ### 5.1. Les attributs entrent en classe
 
